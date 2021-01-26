@@ -1,18 +1,20 @@
-const { describe, it, before, afterEach } = require('mocha')
+const { describe, it, before, afterEach, } = require('mocha')
 const { expect } = require('chai')
 const TodoRepository = require('../src/todoRepository')
-const { createSandBox, createSandbox } = require('sinon')
+const { createSandbox } = require('sinon')
 
 describe('todoRepository', () => {
     let todoRepository
-    let sandBox
-    before( () => {
+    let sandbox
+    before(() => {
         todoRepository = new TodoRepository()
-        sandBox = createSandbox()
+        sandbox = createSandbox()
     })
+
     afterEach(() => {
-        sandBox.restore()
+        sandbox.restore()
     })
+
     describe('methods signature', () => {
         it('should call find from lokijs', () => {
             const mockDatabase =  [
@@ -25,21 +27,36 @@ describe('todoRepository', () => {
                 ]
 
               const functionName = "find"
-              const expectReturn = mockDatabase
-              sandBox.stub(
+              const expectedReturn = mockDatabase
+              sandbox.stub(
                   todoRepository.schedule,
                   functionName
-              ).returns(expectReturn)
+              ).returns(expectedReturn)
 
               const result = todoRepository.list()
-              expect(result).to.be.deep.equal(expectReturn)
+              expect(result).to.be.deep.equal(expectedReturn)
               expect(todoRepository.schedule[functionName].calledOnce).to.be.ok
 
         })
-        it('should call find from lokijs', () => {
+        it('should call insertOne from lokijs', () => {
+            const functionName = "insertOne"
+              const expectedReturn = true
+
+              sandbox.stub(
+                  todoRepository.schedule,
+                  functionName
+              ).returns(expectedReturn)
+
+              const data = { name: 'Danilo' }
+
+              const result = todoRepository.create(data)
+
+              expect(result).to.be.ok
+
+              expect(todoRepository.schedule[functionName].calledOnceWithExactly(data)).to.be.ok
 
         })
         
-    }) //01-01-12
+    })  
 })
 
