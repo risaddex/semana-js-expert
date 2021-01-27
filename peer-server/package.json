@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "SET PORT=9000 npm start",
-    "start": "npm peerjs --port $PORT --key peerjs --path /"
+    "start": "np peerjs --port $PORT --key peerjs --path /"
   },
   "keywords": [],
   "author": "",
