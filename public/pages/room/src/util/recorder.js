@@ -36,8 +36,9 @@ class Recorder {
         if(!this.stream.active) return;
         this.mediaRecorder = new MediaRecorder(this.stream, options)
         console.log(`Created MediaRecorder ${this.mediaRecorder} with options ${options}`)
-
+        
         this.mediaRecorder.onstop = (event) => {
+            // Blobs obj DOESNT SHOW UP ON FIREFOX 85.0
             console.log('Recorded Blobs', this.recordedBlobs)
         }
 
