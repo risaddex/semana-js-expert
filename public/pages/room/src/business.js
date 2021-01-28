@@ -12,7 +12,7 @@ class Business {
         this.currentPeer = {}
 
         this.peers = new Map()
-        this.userRecordings = new Map()
+        this.usersRecordings = new Map()
     }
     static initialize(deps) {
         const instance = new Business(deps)
@@ -43,7 +43,7 @@ class Business {
 
     addVideoStream(userId, stream = this.currentStream) {
         const recorderInstance = new Recorder(userId, stream)
-        this.userRecordings.set(recorderInstance.filename, recorderInstance)
+        this.usersRecordings.set(recorderInstance.filename, recorderInstance)
         if(this.recordingEnabled) {
             recorderInstance.startRecording()
         }
@@ -93,14 +93,14 @@ class Business {
         }
     }
 
-    onPeerCallReceived  () {
+    onPeerCallReceived () {
         return call => {
             console.log('answering call', call)
             call.answer(this.currentStream)
         }
     }
 
-    onPeerStreamReceived  () {
+    onPeerStreamReceived () {
         return (call, stream) => {
             const callerId = call.peer
             this.addVideoStream(callerId, stream)
@@ -113,7 +113,7 @@ class Business {
     onPeerCallError () {
         return (call, error) => {
             console.log('an call error ocurred', error)
-            this.view.removeViewElement(call, peer)          
+            this.view.removeVideoElement(call, peer)          
         }
     }
 
@@ -126,5 +126,29 @@ class Business {
     onRecordPressed(recordingEnabled) {
         this.recordingEnabled = recordingEnabled
         console.log('pressinou', recordingEnabled)
+        for( const [key, value] of this.usersRecordings) {
+            if(this.recordingEnabled) {
+                // cada usuário é uma instância, navega até cada usuário e inicia gravação independented
+                value.startRecording()
+                continue;
+            }
+            this.stopRecording(key)
+        }
+
+    }
+    // se um usuário sair da call durante a gravação
+    // precisamos parar as gravcações anteriores dele
+    async stopRecording(userId) {
+        const usersRecordings = this.usersRecordings
+        for( const [key, value] of usersRecordings) {
+            const isContextUser = key.includes(userId)
+            if(!isContextUser) continue;
+
+            const rec = value
+            const isRecordingActive = rec.recordingActive
+            if(!isRecordingActive) continue;
+
+            await rec.stopRecording()
+        }
     }
 }
